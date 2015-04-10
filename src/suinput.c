@@ -28,6 +28,8 @@
 
 #include "suinput.h"
 
+static const char *default_uinput_path = "/dev/uinput";
+
 int suinput_write_event(int uinput_fd, const struct input_event *event_p)
 {
         ssize_t bytes;
@@ -125,6 +127,14 @@ out:
         orig_errno = errno;
         udev_device_unref(udev_dev);
         udev_unref(udev);
+
+        // Check default path
+        if (!retval && access(default_uinput_path, F_OK) != -1) {
+            if ((retval = malloc(strlen(default_uinput_path) + 1))) {
+                strcpy(retval, default_uinput_path);
+            }
+        }
+
         errno = orig_errno;
         return retval;
 }
